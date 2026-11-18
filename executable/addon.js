@@ -1,35 +1,89 @@
 const COMMANDS = {
-  help() {
-    console.info("Available commands:", "help", "status", "ui.dark", "ui.light", "ui.title <text>");
+  "hexagon.help"() {
+    console.info(
+      "Hexagon commands:",
+      "hexagon.help",
+      "hexagon.status",
+      "hexagon.page",
+      "hexagon.title <text>",
+      "hexagon.theme.dark",
+      "hexagon.theme.light",
+      "hexagon.scroll.top",
+      "hexagon.scroll.bottom",
+      "hexagon.copy-url",
+      "hexagon.time"
+    );
   },
-  status() {
-    console.info("[web-addon] loaded; page:", window.location.origin);
+
+  "hexagon.status"() {
+    console.info("[hexagon] addon is running.");
   },
-  "ui.dark"() {
+
+  "hexagon.page"() {
+    console.info({
+      title: document.title,
+      url: window.location.href,
+      domain: window.location.hostname
+    });
+  },
+
+  "hexagon.title"(args) {
+    const title = args.join(" ").trim();
+
+    if (!title) {
+      console.warn("Usage: webAddon('hexagon.title <text>')");
+      return;
+    }
+
+    document.title = title;
+    console.info("[hexagon] Page title updated.");
+  },
+
+  "hexagon.theme.dark"() {
     document.documentElement.style.colorScheme = "dark";
     document.body.style.backgroundColor = "#111827";
     document.body.style.color = "#f9fafb";
+    console.info("[hexagon] Dark theme applied.");
   },
-  "ui.light"() {
+
+  "hexagon.theme.light"() {
     document.documentElement.style.colorScheme = "light";
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.color = "#111827";
+    console.info("[hexagon] Light theme applied.");
   },
-  "ui.title"(args) {
-    const title = args.join(" ").trim();
-    if (!title) {
-      console.warn("Usage: webAddon('ui.title <text>')");
+
+  "hexagon.scroll.top"() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  },
+
+  "hexagon.scroll.bottom"() {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth"
+    });
+  },
+
+  async "hexagon.copy-url"() {
+    if (!navigator.clipboard?.writeText) {
+      console.warn("[hexagon] Clipboard access is not available on this page.");
       return;
     }
-    document.title = title;
+
+    await navigator.clipboard.writeText(window.location.href);
+    console.info("[hexagon] Page URL copied.");
+  },
+
+  "hexagon.time"() {
+    console.info("[hexagon] Local time:", new Date().toLocaleString());
   }
 };
 
-/** Register a small, allowlisted developer-console interface. */
+/** Register the allowlisted Hexagon console commands. */
 export function registerAddonConsole() {
   if (typeof window === "undefined" || typeof document === "undefined") return;
 
-  window.webAddon = function webAddon(input = "help") {
+  window.webAddon = function webAddon(input = "hexagon.help") {
     if (typeof input !== "string") {
       console.warn("Command must be a string.");
       return;
@@ -39,16 +93,23 @@ export function registerAddonConsole() {
     const command = COMMANDS[name];
 
     if (typeof command !== "function") {
-      console.warn(`Unknown command: ${name || "(empty)"}. Run webAddon('help').`);
+      console.warn(
+        `Unknown command: ${name || "(empty)"}. Run webAddon('hexagon.help').`
+      );
       return;
     }
 
     try {
-      command(args);
+      const result = command(args);
+      if (result && typeof result.catch === "function") {
+        result.catch((error) => {
+          console.error(`[hexagon] Command failed: ${name}`, error);
+        });
+      }
     } catch (error) {
-      console.error(`[web-addon] Command failed: ${name}`, error);
+      console.error(`[hexagon] Command failed: ${name}`, error);
     }
   };
 
-  console.info("[web-addon] Ready. Run webAddon('help') for commands.");
+  console.info("[hexagon] Ready. Run webAddon('hexagon.help') to list commands.");
 }
