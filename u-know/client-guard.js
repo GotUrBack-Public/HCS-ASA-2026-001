@@ -1,14 +1,12 @@
 /*
- * u-know: lightweight browser-side form friction.
+ * Small guard for the forms that have data-guard on them.
  *
- * Usage:
- *   1. Add data-guard to forms you want this to cover:
- *        <form data-guard ...>
- *   2. Paste this IIFE into your page's existing JavaScript.
+ * Add data-guard to a form, then drop this into your page's JS.
+ * It adds a hidden spare field and stops very quick repeat submits.
  *
- * This is NOT a security boundary or DDoS mitigation. A bot can disable or
- * bypass browser JavaScript and send requests directly to your server.
- * Enforce rate limits, validation, bot challenges and request limits server-side.
+ * Just a heads-up: this only runs in the browser. It won't stop someone
+ * from sending requests straight to your server, so keep the real rate
+ * limits and validation on the server too.
  */
 (() => {
   "use strict";
@@ -16,10 +14,10 @@
   const COOLDOWN_MS = 2500;
   const lastSubmit = new WeakMap();
 
-  // Only opt-in forms are affected; unrelated forms and fetch() remain untouched.
+  // Leave forms alone unless they've opted in with data-guard.
   document.querySelectorAll("form[data-guard]").forEach((form) => {
-    // A honeypot is an extra, visually hidden field. Real users should leave it empty.
-    // Do not use this as the only bot check: automated clients can detect it.
+    // Most people won't see or fill this field. Basic bots sometimes do.
+    // It's only a small extra check, not a reliable way to identify every bot.
     if (!form.querySelector('input[name="company_website"]')) {
       const trap = document.createElement("input");
       trap.type = "text";
@@ -37,14 +35,14 @@
       (event) => {
         const trap = form.querySelector('input[name="company_website"]');
 
-        // A filled honeypot is a signal, not proof, of automation.
+        // If this field has a value, don't send the form.
         if (trap && trap.value.trim() !== "") {
           event.preventDefault();
           event.stopImmediatePropagation();
           return;
         }
 
-        // Small per-page cooldown reduces accidental rapid double-submits.
+        // Ignore a second submit if it happens almost straight away.
         const now = Date.now();
         const previous = lastSubmit.get(form) || 0;
 
