@@ -1,6 +1,6 @@
 (async () => {
   const source = atob(
-    "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0dvdFVyQmFjay1QdWJsaWMvV2ViLWFkZG9uLWxpYnJhcnkvNmFjZTM3NWQxNzY4N2Y3Y2RhYjAyNjRkY2Q3YTQwZTViZTgyZGVlMS9leGVjdXRhYmxlL2FkZG9uLmpz"
+    "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0dvdFVyQmFjay1QdWJsaWMvV2ViLWFkZG9uLWxpYnJhcnkvMTk4NjY4YTVlZmFmNWY4NmI2Njc2YzVjYzI4NzliZGRmYWU0ODNlYy9leGVjdXRhYmxlL2FkZG9uLmpz"
   );
 
   try {
