@@ -6,3 +6,10 @@ Proof of Concept
 
 
 [  Testet in an Autorized Attack against an local setup envirement an the site https://naser.solutions.de  ]
+
+
+
+WIKI:
+
+
+https://github.com/GotUrBack-Public/HCS-ASA-2026-001/wiki/HCS%E2%80%90ASA%E2%80%902026%E2%80%90001-%7C-WIKI
